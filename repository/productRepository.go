@@ -17,15 +17,15 @@ type ProductRepository interface {
 	UpdateBySku(ctx context.Context, product *domain.Product, sku string) (*domain.Product, *utils.Error)
 }
 
-type productRepositoryStruct struct {
+type ProductRepositoryStruct struct {
 	coll *mongo.Collection
 }
 
-func NewProductRepository(coll *mongo.Collection) ProductRepository {
-	return &productRepositoryStruct{coll}
+func NewProductRepository(coll *mongo.Collection) *ProductRepositoryStruct {
+	return &ProductRepositoryStruct{coll}
 }
 
-func (repo *productRepositoryStruct) findBySku(ctx context.Context, sku string) (*domain.Product, *utils.Error) {
+func (repo *ProductRepositoryStruct) findBySku(ctx context.Context, sku string) (*domain.Product, *utils.Error) {
 	filter := bson.M{"sku": sku}
 	product := &domain.Product{}
 	err := repo.coll.FindOne(ctx, filter).Decode(product)
@@ -37,7 +37,7 @@ func (repo *productRepositoryStruct) findBySku(ctx context.Context, sku string) 
 	return product, nil
 }
 
-func (repo *productRepositoryStruct) Create(ctx context.Context, product *domain.Product) (*domain.Product, *utils.Error) {
+func (repo *ProductRepositoryStruct) Create(ctx context.Context, product *domain.Product) (*domain.Product, *utils.Error) {
 	prod, _ := repo.findBySku(ctx, product.SKU)
 
 	if prod != nil {
@@ -51,7 +51,7 @@ func (repo *productRepositoryStruct) Create(ctx context.Context, product *domain
 	}
 }
 
-func (repo *productRepositoryStruct) DeleteBySku(ctx context.Context, sku string) *utils.Error {
+func (repo *ProductRepositoryStruct) DeleteBySku(ctx context.Context, sku string) *utils.Error {
 	filter := bson.M{"sku": sku}
 
 	res, err := repo.coll.DeleteOne(ctx, filter)
@@ -67,7 +67,7 @@ func (repo *productRepositoryStruct) DeleteBySku(ctx context.Context, sku string
 	return nil
 }
 
-func (repo *productRepositoryStruct) UpdateBySku(ctx context.Context, product *domain.Product, sku string) (*domain.Product, *utils.Error) {
+func (repo *ProductRepositoryStruct) UpdateBySku(ctx context.Context, product *domain.Product, sku string) (*domain.Product, *utils.Error) {
 	res, err := repo.coll.UpdateOne(ctx, bson.M{"sku": sku}, bson.M{"$set": bson.M{"designation": product.Designation, "description": product.Description}})
 
 	if err != nil {

@@ -20,17 +20,17 @@ type ProductService interface {
 	UpdateProductBySkuAndPublish(ctx context.Context, sku string, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error)
 }
 
-type productServiceStruct struct {
+type ProductServiceStruct struct {
 	ProductRepository repository.ProductRepository
 	EventRepository   repository.EventRepository
 	ProductPublisher  publisher.ProductPublisher
 }
 
-func NewProductService(productRepository repository.ProductRepository, eventRepository repository.EventRepository, productPublisher publisher.ProductPublisher) ProductService {
-	return &productServiceStruct{productRepository, eventRepository, productPublisher}
+func NewProductService(productRepository repository.ProductRepository, eventRepository repository.EventRepository, productPublisher publisher.ProductPublisher) *ProductServiceStruct {
+	return &ProductServiceStruct{productRepository, eventRepository, productPublisher}
 }
 
-func (s *productServiceStruct) CreateProduct(ctx context.Context, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
+func (s *ProductServiceStruct) CreateProduct(ctx context.Context, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
 	jsonBytes, _ := json.Marshal(productDto)
 	product, err := domain.NewProduct(jsonBytes)
 
@@ -55,7 +55,7 @@ func (s *productServiceStruct) CreateProduct(ctx context.Context, productDto *dt
 	return createdProductDTO, nil
 }
 
-func (s *productServiceStruct) CreateProductAndPublish(ctx context.Context, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
+func (s *ProductServiceStruct) CreateProductAndPublish(ctx context.Context, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
 	createdProductDto, err := s.CreateProduct(ctx, productDto)
 
 	if err != nil {
@@ -81,11 +81,11 @@ func (s *productServiceStruct) CreateProductAndPublish(ctx context.Context, prod
 	return createdProductDto, nil
 }
 
-func (s *productServiceStruct) DeleteProductBySku(ctx context.Context, sku string) *utils.Error {
+func (s *ProductServiceStruct) DeleteProductBySku(ctx context.Context, sku string) *utils.Error {
 	return s.ProductRepository.DeleteBySku(ctx, sku)
 }
 
-func (s *productServiceStruct) DeleteProductBySkuAndPublish(ctx context.Context, sku string) *utils.Error {
+func (s *ProductServiceStruct) DeleteProductBySkuAndPublish(ctx context.Context, sku string) *utils.Error {
 	err := s.DeleteProductBySku(ctx, sku)
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func (s *productServiceStruct) DeleteProductBySkuAndPublish(ctx context.Context,
 	return s.ProductPublisher.PublishMessage(ctx, event)
 }
 
-func (s *productServiceStruct) UpdateProductBySku(ctx context.Context, sku string, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
+func (s *ProductServiceStruct) UpdateProductBySku(ctx context.Context, sku string, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
 	jsonBytes, _ := json.Marshal(productDto)
 	product, err := domain.NewProduct(jsonBytes)
 
@@ -130,7 +130,7 @@ func (s *productServiceStruct) UpdateProductBySku(ctx context.Context, sku strin
 	return updatedProductDto, nil
 }
 
-func (s *productServiceStruct) UpdateProductBySkuAndPublish(ctx context.Context, sku string, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
+func (s *ProductServiceStruct) UpdateProductBySkuAndPublish(ctx context.Context, sku string, productDto *dto.ProductDTO) (*dto.ProductDTO, *utils.Error) {
 	createdProductDto, err := s.UpdateProductBySku(ctx, sku, productDto)
 
 	if err != nil {

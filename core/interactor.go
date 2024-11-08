@@ -19,18 +19,18 @@ type Interactor interface {
 	NewProductController(productService service.ProductService) controller.ProductController
 }
 
-type interactorStruct struct {
+type InteractorStruct struct {
 	databaseConn  *mongo.Database
 	rabbitChannel *amqp.Channel
 	routingKey    string
 }
 
-func NewInteractor(conn *mongo.Database, rabbitChannel *amqp.Channel, routingKey string) Interactor {
-	return &interactorStruct{conn, rabbitChannel, routingKey}
+func NewInteractor(conn *mongo.Database, rabbitChannel *amqp.Channel, routingKey string) *InteractorStruct {
+	return &InteractorStruct{conn, rabbitChannel, routingKey}
 }
 
-func (i *interactorStruct) NewAppHandler() AppHandler {
-	appHandler := &appHandlerStruct{}
+func (i *InteractorStruct) NewAppHandler() *AppHandlerStruct {
+	appHandler := &AppHandlerStruct{}
 	productService := i.NewProductService()
 	appHandler.ProductController = i.NewProductController(productService)
 	appHandler.ProductListener = i.NewProductListener(productService)
@@ -41,30 +41,30 @@ func (i *interactorStruct) NewAppHandler() AppHandler {
 	return appHandler
 }
 
-func (i *interactorStruct) NewProductRepository() repository.ProductRepository {
+func (i *InteractorStruct) NewProductRepository() repository.ProductRepository {
 	return repository.NewProductRepository(i.databaseConn.Collection("products"))
 }
 
-func (i *interactorStruct) NewEventRepository() repository.EventRepository {
+func (i *InteractorStruct) NewEventRepository() repository.EventRepository {
 	return repository.NewEventRepository(i.databaseConn.Collection("events"))
 }
 
-func (i *interactorStruct) NewProductPublisher() publisher.ProductPublisher {
+func (i *InteractorStruct) NewProductPublisher() publisher.ProductPublisher {
 	return publisher.NewProductPublisher(i.rabbitChannel, "product-fanout", i.routingKey)
 }
 
-func (i *interactorStruct) NewProductListener(productService service.ProductService) listener.ProductListener {
+func (i *InteractorStruct) NewProductListener(productService service.ProductService) listener.ProductListener {
 	return listener.NewProductListener(i.rabbitChannel, "product-fanout", i.routingKey, productService)
 }
 
-func (i *interactorStruct) NewProductService() service.ProductService {
+func (i *InteractorStruct) NewProductService() service.ProductService {
 	return service.NewProductService(i.NewProductRepository(), i.NewEventRepository(), i.NewProductPublisher())
 }
 
-func (i *interactorStruct) NewProductController(productService service.ProductService) controller.ProductController {
+func (i *InteractorStruct) NewProductController(productService service.ProductService) controller.ProductController {
 	return controller.NewProductController(productService)
 }
 
-func (i *interactorStruct) NewProductRpcBootstrapper(productService service.ProductService) bootstrap.ProductRpcBootstrap {
+func (i *InteractorStruct) NewProductRpcBootstrapper(productService service.ProductService) bootstrap.ProductRpcBootstrap {
 	return bootstrap.NewProductRpcBootstrap(i.rabbitChannel, productService)
 }

@@ -10,7 +10,7 @@ type AppHandler interface {
 	listener.ProductListener
 }
 
-type appHandlerStruct struct {
+type AppHandlerStruct struct {
 	controller.ProductController
 	listener.ProductListener
 }

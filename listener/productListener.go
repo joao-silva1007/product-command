@@ -14,18 +14,18 @@ type ProductListener interface {
 	StartListening()
 }
 
-type productListenerStruct struct {
+type ProductListenerStruct struct {
 	channel        *amqp.Channel
 	exchangeName   string
 	routingKey     string
 	productService service.ProductService
 }
 
-func NewProductListener(productChannel *amqp.Channel, exchangeName string, routingKey string, productService service.ProductService) ProductListener {
-	return &productListenerStruct{productChannel, exchangeName, routingKey, productService}
+func NewProductListener(productChannel *amqp.Channel, exchangeName string, routingKey string, productService service.ProductService) *ProductListenerStruct {
+	return &ProductListenerStruct{productChannel, exchangeName, routingKey, productService}
 }
 
-func (s *productListenerStruct) StartListening() {
+func (s *ProductListenerStruct) StartListening() {
 	q, err := s.channel.QueueDeclare(
 		"",    // name
 		false, // durable
@@ -79,7 +79,7 @@ func (s *productListenerStruct) StartListening() {
 	}()
 }
 
-func (s *productListenerStruct) processCreateProductMessage(ctx context.Context, bytes []byte) {
+func (s *ProductListenerStruct) processCreateProductMessage(ctx context.Context, bytes []byte) {
 	createProductMessage := new(messages.CreateProductMessage)
 	err := json.Unmarshal(bytes, &createProductMessage)
 	if err != nil {
@@ -90,7 +90,7 @@ func (s *productListenerStruct) processCreateProductMessage(ctx context.Context,
 	log.Print(err2.BaseError)
 }
 
-func (s *productListenerStruct) processUpdateProductMessage(ctx context.Context, bytes []byte) {
+func (s *ProductListenerStruct) processUpdateProductMessage(ctx context.Context, bytes []byte) {
 	updateProductMessage := new(messages.UpdateProductMessage)
 	err := json.Unmarshal(bytes, &updateProductMessage)
 	if err != nil {
@@ -101,7 +101,7 @@ func (s *productListenerStruct) processUpdateProductMessage(ctx context.Context,
 	log.Print(err2.BaseError)
 }
 
-func (s *productListenerStruct) processDeleteProductMessage(ctx context.Context, bytes []byte) {
+func (s *ProductListenerStruct) processDeleteProductMessage(ctx context.Context, bytes []byte) {
 	deleteProductMessage := new(messages.DeleteProductMessage)
 	err := json.Unmarshal(bytes, &deleteProductMessage)
 	if err != nil {

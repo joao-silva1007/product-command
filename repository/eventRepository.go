@@ -13,15 +13,15 @@ type EventRepository interface {
 	Create(ctx context.Context, event *domain.Event) (*domain.Event, *utils.Error)
 }
 
-type eventRepositoryStruct struct {
+type EventRepositoryStruct struct {
 	coll *mongo.Collection
 }
 
-func NewEventRepository(coll *mongo.Collection) EventRepository {
-	return &eventRepositoryStruct{coll}
+func NewEventRepository(coll *mongo.Collection) *EventRepositoryStruct {
+	return &EventRepositoryStruct{coll}
 }
 
-func (repo *eventRepositoryStruct) findByIdentifier(ctx context.Context, identifier string) (*domain.Event, *utils.Error) {
+func (repo *EventRepositoryStruct) findByIdentifier(ctx context.Context, identifier string) (*domain.Event, *utils.Error) {
 	filter := bson.M{"identifier": identifier}
 	event := &domain.Event{}
 	err := repo.coll.FindOne(ctx, filter).Decode(event)
@@ -33,7 +33,7 @@ func (repo *eventRepositoryStruct) findByIdentifier(ctx context.Context, identif
 	return event, nil
 }
 
-func (repo *eventRepositoryStruct) Create(ctx context.Context, event *domain.Event) (*domain.Event, *utils.Error) {
+func (repo *EventRepositoryStruct) Create(ctx context.Context, event *domain.Event) (*domain.Event, *utils.Error) {
 	if _, err := repo.coll.InsertOne(ctx, event); err != nil {
 		return nil, &utils.Error{BaseError: err, StatusCodeToReturn: 400}
 	} else {

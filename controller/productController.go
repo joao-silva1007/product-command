@@ -14,15 +14,15 @@ type ProductController interface {
 	UpdateProductBySku(ctx *fiber.Ctx) error
 }
 
-type productControllerStruct struct {
+type ProductControllerStruct struct {
 	ProductService service.ProductService
 }
 
-func NewProductController(productService service.ProductService) ProductController {
-	return &productControllerStruct{productService}
+func NewProductController(productService service.ProductService) *ProductControllerStruct {
+	return &ProductControllerStruct{productService}
 }
 
-func (c *productControllerStruct) CreateProduct(ctx *fiber.Ctx) error {
+func (c *ProductControllerStruct) CreateProduct(ctx *fiber.Ctx) error {
 	productDTO, err := dto.NewProductDTO(ctx.Body())
 
 	if err != nil {
@@ -38,7 +38,7 @@ func (c *productControllerStruct) CreateProduct(ctx *fiber.Ctx) error {
 	return helpers.ResponseWithBodyAndStatusCode(ctx, createdProductDTO, fiber.StatusCreated)
 }
 
-func (c *productControllerStruct) DeleteProductBySku(ctx *fiber.Ctx) error {
+func (c *ProductControllerStruct) DeleteProductBySku(ctx *fiber.Ctx) error {
 	sku := ctx.Params("sku")
 
 	err := c.ProductService.DeleteProductBySkuAndPublish(ctx.UserContext(), sku)
@@ -50,7 +50,7 @@ func (c *productControllerStruct) DeleteProductBySku(ctx *fiber.Ctx) error {
 	return helpers.DatabaseResponseWithoutData(ctx)
 }
 
-func (c *productControllerStruct) UpdateProductBySku(ctx *fiber.Ctx) error {
+func (c *ProductControllerStruct) UpdateProductBySku(ctx *fiber.Ctx) error {
 	sku := ctx.Params("sku")
 	productDTO, err := dto.NewProductDTO(ctx.Body())
 

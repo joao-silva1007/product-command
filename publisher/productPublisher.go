@@ -13,17 +13,17 @@ type ProductPublisher interface {
 	PublishMessage(ctx context.Context, message *domain.Event) *utils.Error
 }
 
-type productPublisherStruct struct {
+type ProductPublisherStruct struct {
 	channel      *amqp.Channel
 	exchangeName string
 	routingKey   string
 }
 
-func NewProductPublisher(productChannel *amqp.Channel, exchangeName string, routingKey string) ProductPublisher {
-	return &productPublisherStruct{productChannel, exchangeName, routingKey}
+func NewProductPublisher(productChannel *amqp.Channel, exchangeName string, routingKey string) *ProductPublisherStruct {
+	return &ProductPublisherStruct{productChannel, exchangeName, routingKey}
 }
 
-func (p *productPublisherStruct) PublishMessage(ctx context.Context, message *domain.Event) *utils.Error {
+func (p *ProductPublisherStruct) PublishMessage(ctx context.Context, message *domain.Event) *utils.Error {
 
 	bytes, err := json.Marshal(message)
 
