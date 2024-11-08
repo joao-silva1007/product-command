@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  mongodb_product_container:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_product_data_container:/data/db
+  mongodb_product_container2:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27018:27017
+    volumes:
+      - mongodb_product_data_container2:/data/db
+
+volumes:
+  mongodb_product_data_container:
+  mongodb_product_data_container2:
